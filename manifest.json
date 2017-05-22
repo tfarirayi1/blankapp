@@ -1,7 +1,7 @@
 {
-  "name": "Kiosk Web-Dev",
-  "short_name": "K W-D",
-  "description": "Smart websites for small organisations",
+  "name": "Blankapp",
+  "short_name": "ba",
+  "description": "Smart websites for small to medium organisations.",
   "start_url": "/",
   "display": "standalone"
 }

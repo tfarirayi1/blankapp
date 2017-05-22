@@ -1,18 +1,17 @@
 <!--
-@license
-Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+Main app element
+@tfarirayi1
 -->
 
+<!-- Polymer dependency -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<!-- App elements -->
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<!-- Iron elements -->
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="my-icons.html">
+<!-- Custom elements -->
+<link rel="import" href="icons.html">
 <link rel="import" href="blank-element.html">
 
 <dom-module id="my-app">
@@ -59,18 +58,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         '_routePageChanged(routeData.page)',
       ],
 
+      created: function() {
+        this.removeAttribute('unresolved');
+      },
+
       _routePageChanged: function(page) {
         this.page = page || 'home';
       },
 
-      _pageChanged: function(page) {
-        // Load page import on demand. Show 404 page if fails
-        var resolvedPageUrl = this.resolveUrl(page + '-page.html');
-        this.importHref(resolvedPageUrl, null, this._showPage404, true);
+      _pageChanged: function(page, oldPage) {
+        if (page) {
+          if (page == 'home') {
+            this._ensureLazyLoaded();
+
+          } else {
+            var resolvedPageUrl = this.resolveUrl(page + '-page.html');
+            this.importHref(resolvedPageUrl, null, this._showPage404, true);
+          
+          }
+        }
+      },
+
+      _ensureLazyLoaded: function() {
+        // Lazy load other resources after home page has rendered
+        if (!this.loadComplete) {
+          Polymer.RenderStatus.afterNextRender(this, function() {
+            this.importHref(this.resolveUrl('lazy-resources.html'), function() {
+              // Register service worker if supported
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/service-worker.js');
+              }
+              this.loadComplete = true;
+            })
+          });
+        }
+
       },
 
       _showPage404: function() {
-        this.page = 'home';
+        this.page = '404';
       },
     });
   </script>
